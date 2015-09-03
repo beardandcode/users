@@ -11,7 +11,8 @@
             [lein-bikeshed "0.2.0"]
             [lein-kibit "0.1.2"]]
   
-  :dependencies [[org.clojure/clojure "1.7.0"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [com.beardandcode/forms "0.1.0-SNAPSHOT"]]
 
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]

@@ -3,7 +3,9 @@
             [ring.adapter.jetty :refer [run-jetty]]
             [compojure.core :refer :all]
             [compojure.route :as route]
-            [hiccup.page :as hiccup]))
+            [hiccup.page :as hiccup]
+            [com.beardandcode.forms :as forms]
+            [com.beardandcode.users.schemata :as schemata]))
 
 
 (defn route-fn []
@@ -13,7 +15,7 @@
                     [:head
                      [:title "Test webapp"]
                      [:link {:rel "stylesheet" :type "text/css" :href "/static/main.css"}]]
-                    [:body]))
+                    [:body (forms/build "/" schemata/login)]))
 
        (route/resources "/static/"))))
 
