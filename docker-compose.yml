@@ -1,0 +1,10 @@
+web:
+  build: .
+  ports:
+    - "6789:6789"
+    - "8080:8080"
+  volumes:
+    - .:/code
+  environment:
+    PORT: 8080
+  command: lein repl :headless :port 6789 :host 0.0.0.0
