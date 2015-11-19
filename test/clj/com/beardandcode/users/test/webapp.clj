@@ -1,14 +1,15 @@
 (ns com.beardandcode.users.test.webapp
-  (:require [clojure.java.shell :as shell]
-            [ring.adapter.jetty :refer [run-jetty]]
+  (:require [com.stuartsierra.component :as component]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [hiccup.page :as hiccup]
+            [com.beardandcode.components.routes :refer [new-routes]]
+            [com.beardandcode.components.web-server :refer [new-web-server]]
             [com.beardandcode.forms :as forms]
             [com.beardandcode.users.schemata :as schemata]))
 
 
-(defn route-fn []
+(defn route-fn [& _]
   (-> (routes
 
        (GET "/" [] (hiccup/html5
@@ -20,21 +21,10 @@
        (route/resources "/static/"))))
 
 
-(def server nil)
-
-(defn webapp-port [] (when server (-> server .getConnectors first .getLocalPort)))
-
-(defn start-webapp!
-  ([]
-     (start-webapp! (Integer. (or (System/getenv "PORT") 0))))
-  ([port]
-     (alter-var-root (var server)
-                     (fn [server] (or server (run-jetty (route-fn) {:port port :join? false}))))
-     (println (str "Listening on http://localhost:" (webapp-port) "/"))))
-
-(defn open-webapp! []
-  (shell/sh "open" (str "http://localhost:" (webapp-port) "/")))
-
-(defn stop-webapp! []
-  (alter-var-root (var server) #(when % (.stop %))))
+(defn new-test-system [port]
+  (component/system-map
+   :routes (new-routes route-fn)
+   :web (component/using
+         (new-web-server "127.0.0.1" port)
+         [:routes])))
 

@@ -15,11 +15,12 @@ Find your way to the directory where you checked out this project and execute th
 ```
 $ lein repl
 
-user=> (start-webapp!)  ;; starts the example webapp on a random port
-Listening on http://localhost:53677/
+user=> (go)  ;; starts the example webapp on a random port
+...
+...
+... c.beardandcode.components.web-server - Started web server on http://127.0.0.1:8080
 
-user=> (open-webapp!)   ;; only works on OSX as it uses /usr/bin/open
-                        ;; on linux point your browser at the url printed
-                        ;; after running start-webapp!
 ```
+
+Open the url found in your logs in the browser, it will likely be different to the one above.
 

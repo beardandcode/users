@@ -25,9 +25,11 @@
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.10"]
                                   [leiningen #=(leiningen.core.main/leiningen-version)]
                                   [im.chit/vinyasa "0.3.4"]
+                                  [reloaded.repl "0.1.0"]
 
                                   ;; for test webapp
-                                  [ring/ring-jetty-adapter "1.4.0"]
+                                  [ch.qos.logback/logback-classic "1.1.3"]
+                                  [com.beardandcode/components "0.1.0"]
                                   [compojure "1.4.0"]
                                   [hiccup "1.0.5"]]
                    :source-paths ["dev"]
