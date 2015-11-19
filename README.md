@@ -2,12 +2,6 @@
 
 A library to manage and manipulate users for use with a webapp.
 
-## Dependencies
-
-As [com.beardandcode/forms](https://github.com/beardandcode/forms) is still in early development
-there aren't any artefacts published to clojars. So in order to fulfill this dependency, you will
-need to check out this project and run `lein install` locally.
-
 ## Try
 
 Find your way to the directory where you checked out this project and execute the following:

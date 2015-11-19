@@ -12,7 +12,7 @@
             [lein-kibit "0.1.2"]]
   
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [com.beardandcode/forms "0.1.0-SNAPSHOT"]]
+                 [com.beardandcode/forms "0.1.0"]]
 
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]
