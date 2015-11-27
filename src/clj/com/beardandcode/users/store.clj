@@ -62,6 +62,6 @@
 (defn new-mem-store [users]
   (MemStore. (atom (reduce (fn [users-map [email-address password name]]
                              (assoc users-map (str email-address ":" password)
-                                    {:email-address email-address :password password :name name}))
+                                    {:email-address email-address :password password :name name :confirmed? true}))
                            {} users))
              (atom {}) (atom {})))
