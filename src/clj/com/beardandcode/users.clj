@@ -1,5 +1,6 @@
 (ns com.beardandcode.users
-  (:require [com.beardandcode.forms :as forms]
+  (:require [com.beardandcode.components.email :refer [send-email]]
+            [com.beardandcode.forms :as forms]
             [com.beardandcode.users.schemata :as schemata]
             [com.beardandcode.users.store :as store]))
 
@@ -23,7 +24,7 @@
             (fail-fn {:errors {"/" [:not-confirmed]} :values values}))
           (fail-fn {:errors {"/" [:no-user]} :values values}))))))
 
-(defn register [store-instance success-fn fail-fn]
+(defn register [store-instance email-service success-fn fail-fn]
   (fn [request]
     (let [values (forms/values request schemata/register)]
       (if-let [errors (forms/errors request schemata/register)]
@@ -31,6 +32,14 @@
         (if (= (values "password") (values "repeat-password"))
           (if-let [user (store/register! store-instance (values "email-address")
                                          (values "password") (values "name"))]
-            (success-fn user)
+            (let [confirmation-token (store/confirmation-token! store-instance user)]
+              (send-email email-service (:email-address user) "Token" confirmation-token)
+              (success-fn user))
             (fail-fn {:errors {"/" [:failed-to-register]} :values values}))
           (fail-fn {:errors {"/" [:passswords-dont-match]} :values values}))))))
+
+(defn confirm [store-instance success-fn fail-fn]
+  (fn [request]
+    (if-let [user (store/confirm! store-instance (-> request :params :token))]
+      (success-fn user)
+      (fail-fn))))

@@ -17,6 +17,16 @@
             [com.beardandcode.users.schemata :as schemata]
             [com.beardandcode.users.store :refer [new-mem-store]]))
 
+(defprotocol IListEmails
+  (list-emails [_]))
+
+(defrecord MemEmail [emails]
+  IEmail
+  (send-email [_ to subject body] (swap! emails conj [to subject body]))
+
+  IListEmails
+  (list-emails [_] @emails))
+
 (defn page [body]
   (hiccup/html5
    [:head
@@ -37,7 +47,8 @@
                       (merge data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))})))))
 
 (defn route-fn [& _]
-  (let [user-store (new-mem-store [["admin@user.com" "password" "Mr Admin"]])]
+  (let [user-store (new-mem-store [["admin@user.com" "password" "Mr Admin"]])
+        email-service (MemEmail. (atom []))]
     (-> (routes
 
          (GET "/" [:as request]
@@ -46,7 +57,9 @@
                      [:p
                       [:a {:href "/login"} "Login"] ", "
                       [:a {:href "/register"} "register"] " or "
-                      [:a {:href "/logout"} "logout"] "."]]))
+                      [:a {:href "/logout"} "logout"] "."]
+                     [:p "To see emails that have been sent, "
+                      [:a {:href "/emails"} "go to the sent email list"] "."]]))
 
          (GET "/login" [] (login-page))
 
@@ -60,13 +73,28 @@
 
          (POST "/register" [:as {session :session}]
                (users/register user-store
+                               email-service
                                #(-> (redirect "/")
                                     (assoc :session (assoc session :identity %1)))
                                #(register-page %1)))
 
+         (GET "/confirm/:token" [:as {session :session}]
+              (users/confirm user-store
+                             #(-> (redirect "/")
+                                  (assoc :session (assoc session :identity %1)))
+                             #(redirect "/")))
+
          (GET "/logout" [:as {session :session}]
               (-> (redirect "/")
                   (assoc :session (dissoc session :identity))))
+
+         (GET "/emails" []
+              (page [:table
+                     [:thead [:tr [:th "To"] [:th "Subject"] [:th "Body"] [:th]]]
+                     [:tbody (map (fn [[to subject body]]
+                                    [:tr [:td to] [:td subject] [:td body]
+                                     [:td [:a {:href (str "/confirm/" body)} "Confirm!"]]])
+                                  (list-emails email-service))]]))
 
          (route/resources "/static/"))
 
