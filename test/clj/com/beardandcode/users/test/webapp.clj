@@ -30,6 +30,12 @@
    (page (forms/build "/login" schemata/login
                       (merge data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))})))))
 
+(defn register-page
+  ([] (register-page {}))
+  ([data]
+   (page (forms/build "/register" schemata/register
+                      (merge data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))})))))
+
 (defn route-fn [& _]
   (let [user-store (new-mem-store [["admin@user.com" "password" "Mr Admin"]])]
     (-> (routes
@@ -38,7 +44,8 @@
               (page [:div
                      [:p (str "Authenticated? " (authenticated? request))]
                      [:p
-                      [:a {:href "/login"} "Login"] " or "
+                      [:a {:href "/login"} "Login"] ", "
+                      [:a {:href "/register"} "register"] " or "
                       [:a {:href "/logout"} "logout"] "."]]))
 
          (GET "/login" [] (login-page))
@@ -48,6 +55,14 @@
                             #(-> (redirect "/")
                                  (assoc :session (assoc session :identity %1)))
                             #(login-page %1)))
+
+         (GET "/register" [] (register-page))
+
+         (POST "/register" [:as {session :session}]
+               (users/register user-store
+                               #(-> (redirect "/")
+                                    (assoc :session (assoc session :identity %1)))
+                               #(register-page %1)))
 
          (GET "/logout" [:as {session :session}]
               (-> (redirect "/")
