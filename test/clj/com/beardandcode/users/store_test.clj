@@ -24,13 +24,13 @@
           (is (store/confirmed? store-instance (store/authenticate store-instance "tom@booth.com" "pass")))
           (is (not (store/confirm! store-instance token))))))
 
-    (let [reset-password-token (store/reset-password-token! store-instance "tom@booth.com")]
+    (let [reset-password-token (store/reset-password-token! store-instance "tom@booth.com" "new-pass")]
       (is (not (nil? reset-password-token)))
       (is (string? reset-password-token))
-      (let [reset-user (store/reset-password! store-instance reset-password-token "new-pass")
+      (let [reset-user (store/reset-password! store-instance reset-password-token)
             user (store/authenticate store-instance "tom@booth.com" "new-pass")]
         (is (not (nil? reset-user)))
         (is (= reset-user user))
-        (is (nil? (store/reset-password! store-instance reset-password-token "other-pass")))
+        (is (nil? (store/reset-password! store-instance reset-password-token)))
         (is (nil? (store/authenticate store-instance "tom@booth.com" "other-pass")))
         (is (nil? (store/authenticate store-instance "tom@booth.com" "pass")))))))

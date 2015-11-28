@@ -13,9 +13,9 @@
   (confirm! [_ token]
     "Confirm a user based on a token created when they registered")
   
-  (reset-password-token! [_ email-address]
+  (reset-password-token! [_ email-address password]
     "Creates a reset password token for the user with the given email address")
-  (reset-password! [_ token password]
+  (reset-password! [_ token]
     "Reset a password based on a token from requesting to reset"))
 
 (defrecord MemStore [users confirmation-tokens reset-tokens]
@@ -43,19 +43,20 @@
         (swap! confirmation-tokens dissoc token)
         confirmed-user)))
 
-  (reset-password-token! [_ email-address]
+  (reset-password-token! [_ email-address new-password]
     (if-let [user-id (->> (keys @users)
                           (filter #(.startsWith %1 (str email-address ":")))
                           first)]
       (let [token (str (System/currentTimeMillis))]
-        (swap! reset-tokens assoc token user-id)
+        (swap! reset-tokens assoc token {:id user-id
+                                         :new-password new-password})
         token)))
-  (reset-password! [_ token password]
-    (if-let [user-id (@reset-tokens token)]
-      (let [user (@users user-id)
-            reset-user (assoc user :password password)]
+  (reset-password! [_ token]
+    (if-let [request (@reset-tokens token)]
+      (let [user (@users (:id request))
+            reset-user (assoc user :password (:new-password request))]
         (swap! users assoc (str (:email-address reset-user) ":" (:password reset-user)) reset-user)
-        (swap! users dissoc user-id)
+        (swap! users dissoc (:id request))
         (swap! reset-tokens dissoc token)
         reset-user))))
 

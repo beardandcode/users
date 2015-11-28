@@ -3,3 +3,4 @@
 
 (defschema login "schema/com/beardandcode/users/login.json")
 (defschema register "schema/com/beardandcode/users/register.json")
+(defschema forgotten-password "schema/com/beardandcode/users/forgotten-password.json")

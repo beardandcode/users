@@ -46,6 +46,10 @@
    (page (forms/build "/register" schemata/register
                       (merge data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))})))))
 
+(defn forgotten-password-page [data]
+  (page (forms/build "/forgotten-password" schemata/forgotten-password
+                     (merge data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))}))))
+
 (defn route-fn [& _]
   (let [user-store (new-mem-store [["admin@user.com" "password" "Mr Admin"]])
         email-service (MemEmail. (atom []))]
@@ -56,7 +60,8 @@
                      [:p (str "Authenticated? " (authenticated? request))]
                      [:p
                       [:a {:href "/login"} "Login"] ", "
-                      [:a {:href "/register"} "register"] " or "
+                      [:a {:href "/register"} "register"] ", "
+                      [:a {:href "/forgotten-password"} "forgotten password"] " or "
                       [:a {:href "/logout"} "logout"] "."]
                      [:p "To see emails that have been sent, "
                       [:a {:href "/emails"} "go to the sent email list"] "."]]))
@@ -84,6 +89,21 @@
                                   (assoc :session (assoc session :identity %1)))
                              #(redirect "/")))
 
+         (GET "/forgotten-password" [email-address]
+              (forgotten-password-page {:values {"email-address" email-address}}))
+
+         (POST "/forgotten-password" []
+               (users/confirm-forgotten-password user-store
+                                                 email-service
+                                                 #(redirect "/")
+                                                 #(forgotten-password-page %)))
+
+         (GET "/forgotten-password/:token" [:as {session :session}]
+              (users/forgotten-password user-store
+                                        #(-> (redirect "/")
+                                             (assoc :session (assoc session :identity %1)))
+                                        #(redirect "/")))
+
          (GET "/logout" [:as {session :session}]
               (-> (redirect "/")
                   (assoc :session (dissoc session :identity))))
@@ -93,7 +113,9 @@
                      [:thead [:tr [:th "To"] [:th "Subject"] [:th "Body"] [:th]]]
                      [:tbody (map (fn [[to subject body]]
                                     [:tr [:td to] [:td subject] [:td body]
-                                     [:td [:a {:href (str "/confirm/" body)} "Confirm!"]]])
+                                     [:td [:a {:href (str (if (.startsWith subject "Forgot")
+                                                            "/forgotten-password/"
+                                                            "/confirm/") body)} "Action!"]]])
                                   (list-emails email-service))]]))
 
          (route/resources "/static/"))
