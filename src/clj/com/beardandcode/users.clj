@@ -21,7 +21,7 @@
         (if-let [user (store/authenticate store-instance (values "email-address")
                                           (values "password"))]
           (if (store/confirmed? store-instance user)
-            (success-fn user)
+            (success-fn user nil)
             (fail-fn {:errors {"/" [:not-confirmed]} :values values}))
           (fail-fn {:errors {"/" [:no-user]} :values values}))))))
 
@@ -35,17 +35,17 @@
                                          (values "password") (values "name"))]
             (let [confirmation-token (store/confirmation-token! store-instance user)]
               (send-email email-service (:email-address user) "Confirm token" confirmation-token)
-              (success-fn user))
+              (success-fn user nil))
             (fail-fn {:errors {"/" [:failed-to-register]} :values values}))
           (fail-fn {:errors {"/" [:passswords-dont-match]} :values values}))))))
 
 (defn confirm [store-instance success-fn fail-fn]
   (fn [request]
     (if-let [user (store/confirm! store-instance (-> request :params :token))]
-      (success-fn user)
+      (success-fn user nil)
       (fail-fn))))
 
-(defn confirm-forgotten-password [store-instance email-service success-fn fail-fn]
+(defn send-reset-password-token [store-instance email-service success-fn fail-fn]
   (fn [request]
     (let [values (forms/values request schemata/forgotten-password)]
       (if-let [errors (forms/errors request schemata/forgotten-password)]
@@ -57,8 +57,8 @@
             (fail-fn {:errors {"/" [:no-reset-password]}}))
           (fail-fn {:errors {"/" [:passwords-dont-match]} :values values}))))))
 
-(defn forgotten-password [store-instance success-fn fail-fn]
+(defn reset-password [store-instance success-fn fail-fn]
   (fn [request]
     (if-let [user (store/reset-password! store-instance (-> request :params :token))]
-      (success-fn user)
+      (success-fn user nil)
       (fail-fn))))
