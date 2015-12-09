@@ -2,6 +2,10 @@
 
 A library to manage and manipulate users for use with a webapp.
 
+## Dependencies
+
+  - PhantomJS 1.9.8 - Sadly Selenium doesn't yet support PhantomJS 2+, [PhantomJS 1.9.8 can be found here](https://bitbucket.org/ariya/phantomjs/downloads)
+
 ## Try
 
 Find your way to the directory where you checked out this project and execute the following:

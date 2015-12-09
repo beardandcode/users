@@ -27,6 +27,14 @@
                                   [im.chit/vinyasa "0.3.4"]
                                   [reloaded.repl "0.1.0"]
 
+                                  ;; for tests
+                                  [clj-webdriver "0.7.2"]
+                                  [com.codeborne/phantomjsdriver "1.2.1"
+                                   :exclusion [org.seleniumhq.selenium/selenium-java
+                                               org.seleniumhq.selenium/selenium-server
+                                               org.seleniumhq.selenium/selenium-remote-driver]]
+                                  [org.seleniumhq.selenium/selenium-java "2.48.2"]
+
                                   ;; for test webapp
                                   [ch.qos.logback/logback-classic "1.1.3"]
                                   [com.beardandcode/components "0.1.0"]
