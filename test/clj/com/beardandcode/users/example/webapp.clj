@@ -1,4 +1,4 @@
-(ns com.beardandcode.users.test.webapp
+(ns com.beardandcode.users.example.webapp
   (:require [com.stuartsierra.component :as component]
             [compojure.core :refer :all]
             [compojure.route :as route]
