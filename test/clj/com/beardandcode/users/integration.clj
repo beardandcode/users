@@ -28,4 +28,10 @@
 (defn url
   ([system] (url system "/"))
   ([system path]
-        (str "http://127.0.0.1:" (-> system :web web-server/port) path)))
+   (str "http://127.0.0.1:" (-> system :web web-server/port) path)))
+
+(defn current-path [system]
+  (let [base-url (url system "")
+        base-re (re-pattern base-url)
+        current-url (wd/current-url)]
+    (clojure.string/replace-first current-url base-re "")))
