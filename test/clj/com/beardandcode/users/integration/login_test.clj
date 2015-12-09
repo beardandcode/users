@@ -9,6 +9,6 @@
 (use-fixtures :once (i/store-system! system))
 
 (deftest login-appears
-  (wd/to (i/url @system "/"))
+  (wd/to (i/url @system "/account/"))
   (is (= (wd/text "#email-address")
          "Email address")))

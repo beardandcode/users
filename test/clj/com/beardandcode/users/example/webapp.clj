@@ -6,17 +6,27 @@
             [com.beardandcode.components.routes :refer [new-routes]]
             [com.beardandcode.components.web-server :refer [new-web-server]]
             [com.beardandcode.forms :as forms]
+            [com.beardandcode.users.routes :as user-routes]
             [com.beardandcode.users.schemata :as schemata]))
 
+
+(defn- page [body]
+  (hiccup/html5
+   [:head
+    [:title "Test webapp"]
+    [:link {:rel "stylesheet" :type "text/css" :href "/static/main.css"}]]
+   [:body body]))
+
+(defn- account-page []
+  (page (forms/build "/account" schemata/login)))
 
 (defn route-fn [& _]
   (-> (routes
 
-       (GET "/" [] (hiccup/html5
-                    [:head
-                     [:title "Test webapp"]
-                     [:link {:rel "stylesheet" :type "text/css" :href "/static/main.css"}]]
-                    [:body (forms/build "/" schemata/login)]))
+       (GET "/" [] (page [:p [:a {:href "/account"} "Login"]]))
+
+       (user-routes/mount "/account"
+                          {:account-page account-page})
 
        (route/resources "/static/"))))
 
