@@ -1,0 +1,32 @@
+{
+    "$schema": "http://forms.beardandcode.com/draft-04/schema#",
+    "title": "Register",
+    "description": "Register for an account.",
+    "type": "object",
+    "properties": {
+        "email-address": {
+            "type": "string",
+            "format": "email"
+        },
+        "name": {
+            "description": "Your name or something you want to go by",
+            "type": "string"
+        },
+        "password": {
+            "$ref": "#/definitions/password"
+        },
+        "repeat-password": {
+            "$ref": "#/definitions/password"
+        }
+    },
+    "definitions": {
+        "password": {
+            "type": "string",
+            "format": "password"
+        }
+    },
+    "order": ["email-address", "name", "password", "repeat-password"],
+    "submit": "Register",
+    "required": ["email-address", "password", "repeat-password"],
+    "additionalProperties": false
+}
