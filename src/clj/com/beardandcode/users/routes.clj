@@ -11,10 +11,13 @@
   ([base-path user-store email-service
      {:keys [account-page]
       :or {account-page unimplemented-page}}
-     {:keys [was-authenticated]
+     {:keys [was-authenticated was-invalidated]
       :or {was-authenticated (fn [session] (fn [user]
                                             (-> (redirect "/")
-                                                (assoc :session (assoc session :identity user)))))}}]
+                                                (assoc :session (assoc session :identity user)))))
+           was-invalidated (fn [session] (fn [& _]
+                                          (-> (redirect "/")
+                                              (assoc :session (dissoc session :identity)))))}}]
    (context base-path []
             (GET "/" [] (account-page {} {}))
             (POST "/login" [:as {session :session}]
@@ -23,4 +26,6 @@
             (POST "/register" [:as {session :session}]
                   (users/register user-store email-service
                                   (was-authenticated session)
-                                  #(account-page {} %))))))
+                                  #(account-page {} %)))
+            (GET "/logout" [:as {session :session}]
+                 (was-invalidated session)))))

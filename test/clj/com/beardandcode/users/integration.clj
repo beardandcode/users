@@ -42,8 +42,15 @@
     (clojure.string/replace-first current-url base-re "")))
 
 (defmacro assert-path [system path]
-  `(is (= (i/current-path @~system) ~path)))
+  `(is (= (current-path @~system) ~path)))
 
 (defmacro assert-errors [selector errors]
   `(is (= (map wd/text (wd/elements ~selector))
           (map com.beardandcode.users/text ~errors))))
+
+(defn login [system email-address password]
+  (wd/to (url @system "/account"))
+  (wd/quick-fill-submit
+   {"#login input[name=\"email-address\"]" email-address}
+   {"#login input[name=password]" password}
+   {"#login input[name=password]" wd/submit}))

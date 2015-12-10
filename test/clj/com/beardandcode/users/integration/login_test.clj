@@ -1,56 +1,49 @@
 (ns com.beardandcode.users.integration.login-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :as wd]
-            [com.beardandcode.users.integration :as i]
-            [com.beardandcode.users.test :as test]))
+            [com.beardandcode.users.integration :refer :all]
+            [com.beardandcode.users.test :refer :all]))
 
 (def system (atom nil))
 
-(use-fixtures :each (i/wrap-test system))
-(use-fixtures :once (i/store-system! system))
-
-(defn- login [email-address password]
-  (wd/to (i/url @system "/account"))
-  (wd/quick-fill-submit
-   {"#login input[name=\"email-address\"]" email-address}
-   {"#login input[name=password]" password}
-   {"#login input[name=password]" wd/submit}))
+(use-fixtures :each (wrap-test system))
+(use-fixtures :once (store-system! system))
 
 (deftest login-appears
-  (wd/to (i/url @system "/account/"))
+  (wd/to (url @system "/account/"))
   (is (= (wd/text "#email-address")
          "Email address")))
 
 (deftest login-fails
-  (login "nota@user.com" "wontwork")
-  (i/assert-path system "/account/login")
-  (i/assert-errors "form[action=\"/account/login\"] > .error" [:no-user]))
+  (login system "nota@user.com" "wontwork")
+  (assert-path system "/account/login")
+  (assert-errors "form[action=\"/account/login\"] > .error" [:no-user]))
 
 (deftest login-missing-email-address
-  (login "" "password")
-  (i/assert-path system "/account/login")
-  (i/assert-errors "#email-address > .error" [:required])
-  (i/assert-errors "#password > .error" []))
+  (login system "" "password")
+  (assert-path system "/account/login")
+  (assert-errors "#email-address > .error" [:required])
+  (assert-errors "#password > .error" []))
 
 (deftest login-missing-password
-  (login "an@email.address" "")
-  (i/assert-path system "/account/login")
-  (i/assert-errors "#email-address > .error" [])
-  (i/assert-errors "#password > .error" [:required]))
+  (login system "an@email.address" "")
+  (assert-path system "/account/login")
+  (assert-errors "#email-address > .error" [])
+  (assert-errors "#password > .error" [:required]))
 
 (deftest login-email-address-remembered
-  (login "an@email.address" "")
-  (i/assert-path system "/account/login")
+  (login system "an@email.address" "")
+  (assert-path system "/account/login")
   (is (= (map wd/value (wd/elements "#login input[name=\"email-address\"]"))
          ["an@email.address"])))
 
 (deftest login-invalid-email-address
-  (login "not-an-email" "asd")
-  (i/assert-path system "/account/login")
-  (i/assert-errors "#email-address > .error" [:invalid-email]))
+  (login system "not-an-email" "asd")
+  (assert-path system "/account/login")
+  (assert-errors "#email-address > .error" [:invalid-email]))
 
 (deftest login-successful
-  (test/with-users (:user-store @system) [_ {:username "a@user.com" :password "password" :confirmed? true}]
-    (login "a@user.com" "password")
-    (i/assert-path system "/")
+  (with-users (:user-store @system) [_ {:username "a@user.com" :password "password" :confirmed? true}]
+    (login system "a@user.com" "password")
+    (assert-path system "/")
     (is (= (wd/text ".status") "Authenticated"))))
