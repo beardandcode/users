@@ -27,27 +27,29 @@
   (page (forms/build "/account/login" schemata/login
                      (merge login-data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))}))))
 
-(defn route-fn [& _]
-  (let [user-store (new-mem-store [["a@user.com" "password" "A User"]])]
-    (-> (routes
+(defn route-fn [{:keys [user-store]} _]
+  (-> (routes
 
-         (GET "/" [:as request]
-              (page (list [:p.status (if (authenticated? request) "Authenticated" "Unauthenticated")]
-                          [:p [:a {:href "/account"} "Login"]])))
+       (GET "/" [:as request]
+            (page (list [:p.status (if (authenticated? request) "Authenticated" "Unauthenticated")]
+                        [:p [:a {:href "/account"} "Login"]])))
 
-         (user-routes/mount "/account" user-store
-                            {:account-page account-page})
+       (user-routes/mount "/account" user-store
+                          {:account-page account-page})
 
-         (route/resources "/static/"))
+       (route/resources "/static/"))
 
-        (wrap-authentication (session-backend))
-        wrap-session
-        wrap-params)))
+      (wrap-authentication (session-backend))
+      wrap-session
+      wrap-params))
 
 
 (defn new-test-system [port]
   (component/system-map
-   :routes (new-routes route-fn)
+   :user-store (new-mem-store [["a@user.com" "password" "A User"]])
+   :routes (component/using
+            (new-routes route-fn)
+            [:user-store])
    :web (component/using
          (new-web-server "127.0.0.1" port)
          [:routes])))
