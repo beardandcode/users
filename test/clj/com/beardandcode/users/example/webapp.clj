@@ -48,7 +48,7 @@
 (defn new-test-system [port]
   (component/system-map
    :session-store (new-mock-session-store)
-   :user-store (new-mem-store [["a@user.com" "password" "A User"]])
+   :user-store (new-mem-store)
    :routes (component/using
             (new-routes route-fn)
             [:user-store :session-store])

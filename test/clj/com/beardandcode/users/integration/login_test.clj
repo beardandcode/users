@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :as wd]
             [com.beardandcode.users :as users]
-            [com.beardandcode.users.integration :as i]))
+            [com.beardandcode.users.integration :as i]
+            [com.beardandcode.users.test :as test]))
 
 (def system (atom nil))
 
@@ -57,6 +58,7 @@
   (assert-errors "#email-address > .error" [:invalid-email]))
 
 (deftest login-successful
-  (login "a@user.com" "password")
-  (assert-path "/")
-  (is (= (wd/text ".status") "Authenticated")))
+  (test/with-users (:user-store @system) [_ {:username "a@user.com" :password "password" :confirmed? true}]
+    (login "a@user.com" "password")
+    (assert-path "/")
+    (is (= (wd/text ".status") "Authenticated"))))
