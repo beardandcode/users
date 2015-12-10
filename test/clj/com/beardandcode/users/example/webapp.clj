@@ -8,6 +8,7 @@
             [hiccup.page :as hiccup]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
+            [ring.middleware.session.memory :refer [memory-store]]
             [com.beardandcode.components.routes :refer [new-routes]]
             [com.beardandcode.components.web-server :refer [new-web-server]]
             [com.beardandcode.forms :as forms]
@@ -27,7 +28,7 @@
   (page (forms/build "/account/login" schemata/login
                      (merge login-data {:error-text-fn (fn [_ _ error] (get users/text error (str error)))}))))
 
-(defn route-fn [{:keys [user-store]} _]
+(defn route-fn [{:keys [user-store session-store]} _]
   (-> (routes
 
        (GET "/" [:as request]
@@ -40,16 +41,17 @@
        (route/resources "/static/"))
 
       (wrap-authentication (session-backend))
-      wrap-session
+      (wrap-session {:store session-store})
       wrap-params))
 
 
 (defn new-test-system [port]
   (component/system-map
+   :session-store (memory-store)
    :user-store (new-mem-store [["a@user.com" "password" "A User"]])
    :routes (component/using
             (new-routes route-fn)
-            [:user-store])
+            [:user-store :session-store])
    :web (component/using
          (new-web-server "127.0.0.1" port)
          [:routes])))
