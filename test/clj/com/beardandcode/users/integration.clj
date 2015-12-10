@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :as wd]
             [com.stuartsierra.component :as component]
+            [com.beardandcode.components.session.mock :as session-mock]
             [com.beardandcode.components.web-server :as web-server]
             [com.beardandcode.users.example.webapp :as webapp]))
 
@@ -15,8 +16,12 @@
   (when (zero? (swap! browser-count (if force (constantly 0) dec)))
             (wd/quit)))
 
-(defn browser-retain-release [test-fn]
-  (browser-retain) (test-fn) (browser-release))
+(defn wrap-test [system]
+  (fn [test-fn]
+    (browser-retain)
+    (-> @system :session-store session-mock/clear-sessions)
+    (test-fn)
+    (browser-release)))
 
 (defn store-system! [system]
   (fn [ns-fn]
@@ -28,4 +33,10 @@
 (defn url
   ([system] (url system "/"))
   ([system path]
-        (str "http://127.0.0.1:" (-> system :web web-server/port) path)))
+   (str "http://127.0.0.1:" (-> system :web web-server/port) path)))
+
+(defn current-path [system]
+  (let [base-url (url system "")
+        base-re (re-pattern base-url)
+        current-url (wd/current-url)]
+    (clojure.string/replace-first current-url base-re "")))

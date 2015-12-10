@@ -33,4 +33,9 @@
         (is (= reset-user user))
         (is (nil? (store/reset-password! store-instance reset-password-token "other-pass")))
         (is (nil? (store/authenticate store-instance "tom@booth.com" "other-pass")))
-        (is (nil? (store/authenticate store-instance "tom@booth.com" "pass")))))))
+        (is (nil? (store/authenticate store-instance "tom@booth.com" "pass")))))
+
+    (let [a-user (store/register! store-instance "a@user.com" "asdf" "asd")]
+      (is (store/authenticate store-instance "a@user.com" "asdf"))
+      (store/delete! store-instance a-user)
+      (is (not (store/authenticate store-instance "a@user.com" "asdf"))))))

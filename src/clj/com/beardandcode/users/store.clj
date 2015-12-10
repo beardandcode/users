@@ -16,7 +16,9 @@
   (reset-password-token! [_ email-address]
     "Creates a reset password token for the user with the given email address")
   (reset-password! [_ token password]
-    "Reset a password based on a token from requesting to reset"))
+                   "Reset a password based on a token from requesting to reset")
+
+  (delete! [_ user]))
 
 (defrecord MemStore [users confirmation-tokens reset-tokens]
   IUserStore
@@ -57,11 +59,16 @@
         (swap! users assoc (str (:email-address reset-user) ":" (:password reset-user)) reset-user)
         (swap! users dissoc user-id)
         (swap! reset-tokens dissoc token)
-        reset-user))))
+        reset-user)))
 
-(defn new-mem-store [users]
-  (MemStore. (atom (reduce (fn [users-map [email-address password name]]
-                             (assoc users-map (str email-address ":" password)
-                                    {:email-address email-address :password password :name name}))
-                           {} users))
-             (atom {}) (atom {})))
+  (delete! [_ user]
+    (swap! users dissoc (str (:email-address user) ":" (:password user)))))
+
+(defn new-mem-store
+  ([] (new-mem-store []))
+  ([users]
+   (MemStore. (atom (reduce (fn [users-map [email-address password name]]
+                              (assoc users-map (str email-address ":" password)
+                                     {:email-address email-address :password password :name name :confirmed? true}))
+                            {} users))
+              (atom {}) (atom {}))))
