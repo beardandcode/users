@@ -40,3 +40,10 @@
         base-re (re-pattern base-url)
         current-url (wd/current-url)]
     (clojure.string/replace-first current-url base-re "")))
+
+(defmacro assert-path [system path]
+  `(is (= (i/current-path @~system) ~path)))
+
+(defmacro assert-errors [selector errors]
+  `(is (= (map wd/text (wd/elements ~selector))
+          (map com.beardandcode.users/text ~errors))))

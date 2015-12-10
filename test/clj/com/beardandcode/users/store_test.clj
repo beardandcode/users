@@ -38,4 +38,7 @@
     (let [a-user (store/register! store-instance "a@user.com" "asdf" "asd")]
       (is (store/authenticate store-instance "a@user.com" "asdf"))
       (store/delete! store-instance a-user)
-      (is (not (store/authenticate store-instance "a@user.com" "asdf"))))))
+      (is (not (store/authenticate store-instance "a@user.com" "asdf"))))
+
+    (is (store/register! store-instance "some@user.com" "a" "b"))
+    (is (nil? (store/register! store-instance "some@user.com" "a" "b")))))

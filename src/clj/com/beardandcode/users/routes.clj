@@ -7,8 +7,8 @@
   "<h1>Unimplemented page</h1>")
 
 (defn mount
-  ([b u p] (mount b u p {}))
-  ([base-path user-store
+  ([b u p e] (mount b u p e {}))
+  ([base-path user-store email-service
      {:keys [account-page]
       :or {account-page unimplemented-page}}
      {:keys [was-authenticated]
@@ -16,7 +16,11 @@
                                             (-> (redirect "/")
                                                 (assoc :session (assoc session :identity user)))))}}]
    (context base-path []
-            (GET "/" [] (account-page {}))
+            (GET "/" [] (account-page {} {}))
             (POST "/login" [:as {session :session}]
                   (users/login user-store (was-authenticated session)
-                               #(account-page %))))))
+                               #(account-page % {})))
+            (POST "/register" [:as {session :session}]
+                  (users/register user-store email-service
+                                  (was-authenticated session)
+                                  #(account-page {} %))))))
