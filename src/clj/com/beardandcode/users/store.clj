@@ -29,8 +29,10 @@
                     :password password
                     :name name
                     :confirmed? false}]
-      (swap! users assoc (str email-address ":" password) new-user)
-      new-user))
+      (let [user-id (str email-address ":" password)]
+        (when (not (@users user-id))
+          (swap! users assoc user-id new-user)
+          new-user))))
 
   (confirmation-token! [_ user]
     (let [token (str (System/currentTimeMillis))]

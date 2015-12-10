@@ -12,9 +12,9 @@
 (defn- login [email-address password]
   (wd/to (i/url @system "/account"))
   (wd/quick-fill-submit
-   {"input[name=\"email-address\"]" email-address}
-   {"input[name=password]" password}
-   {"input[name=password]" wd/submit}))
+   {"#login input[name=\"email-address\"]" email-address}
+   {"#login input[name=password]" password}
+   {"#login input[name=password]" wd/submit}))
 
 (deftest login-appears
   (wd/to (i/url @system "/account/"))
@@ -41,7 +41,7 @@
 (deftest login-email-address-remembered
   (login "an@email.address" "")
   (i/assert-path system "/account/login")
-  (is (= (map wd/value (wd/elements "input[name=\"email-address\"]"))
+  (is (= (map wd/value (wd/elements "#login input[name=\"email-address\"]"))
          ["an@email.address"])))
 
 (deftest login-invalid-email-address
