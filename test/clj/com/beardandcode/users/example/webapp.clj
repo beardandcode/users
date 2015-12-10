@@ -8,8 +8,8 @@
             [hiccup.page :as hiccup]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
-            [ring.middleware.session.memory :refer [memory-store]]
             [com.beardandcode.components.routes :refer [new-routes]]
+            [com.beardandcode.components.session.mock :refer [new-mock-session-store]]
             [com.beardandcode.components.web-server :refer [new-web-server]]
             [com.beardandcode.forms :as forms]
             [com.beardandcode.users :as users]
@@ -47,7 +47,7 @@
 
 (defn new-test-system [port]
   (component/system-map
-   :session-store (memory-store)
+   :session-store (new-mock-session-store)
    :user-store (new-mem-store [["a@user.com" "password" "A User"]])
    :routes (component/using
             (new-routes route-fn)

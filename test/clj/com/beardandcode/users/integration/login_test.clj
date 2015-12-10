@@ -6,7 +6,7 @@
 
 (def system (atom nil))
 
-(use-fixtures :each i/browser-retain-release)
+(use-fixtures :each (i/wrap-test system))
 (use-fixtures :once (i/store-system! system))
 
 (defn- login [email-address password]
