@@ -2,9 +2,11 @@
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :as wd]
             [com.stuartsierra.component :as component]
+            [com.beardandcode.components.email.mock :as email-mock]
             [com.beardandcode.components.session.mock :as session-mock]
             [com.beardandcode.components.web-server :as web-server]
-            [com.beardandcode.users.example.webapp :as webapp]))
+            [com.beardandcode.users.example.webapp :as webapp]
+            [com.beardandcode.users.store.mock :as store-mock]))
 
 (def ^:private browser-count (atom 0))
 
@@ -20,6 +22,8 @@
   (fn [test-fn]
     (browser-retain)
     (-> @system :session-store session-mock/clear-sessions)
+    (-> @system :email-service email-mock/clear-emails)
+    (-> @system :user-store store-mock/clear-users)
     (test-fn)
     (browser-release)))
 
@@ -41,8 +45,14 @@
         current-url (wd/current-url)]
     (clojure.string/replace-first current-url base-re "")))
 
+(defn list-emails [system]
+  (-> @system :email-service email-mock/list-emails))
+
 (defmacro assert-path [system path]
-  `(is (= (current-path @~system) ~path)))
+  `(let [~'current-path (current-path @~system)]
+     (if (instance? java.util.regex.Pattern ~path)
+       (is (re-matches ~path ~'current-path))
+       (is (= ~path ~'current-path)))))
 
 (defmacro assert-errors [selector errors]
   `(is (= (map wd/text (wd/elements ~selector))
@@ -54,3 +64,15 @@
    {"#login input[name=\"email-address\"]" email-address}
    {"#login input[name=password]" password}
    {"#login input[name=password]" wd/submit}))
+
+(defn register [system email-address name password repeat-password]
+  (wd/to (url @system "/account"))
+  (wd/quick-fill-submit
+   {"input[name=\"email-address\"]" email-address}
+   {"input[name=name]" name}
+   {"input[name=password]" password}
+   {"input[name=\"repeat-password\"]" repeat-password}
+   {"input[name=\"repeat-password\"]" wd/submit}))
+
+(defn logout [system]
+  (wd/to (url @system "/account/logout")))
