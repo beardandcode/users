@@ -1,4 +1,5 @@
-(ns com.beardandcode.users.store)
+(ns com.beardandcode.users.store
+  (:require [com.beardandcode.users.store.mock :as mock]))
 
 (defprotocol IUserStore
   (authenticate [_ email-address password]
@@ -64,7 +65,10 @@
         reset-user)))
 
   (delete! [_ user]
-    (swap! users dissoc (str (:email-address user) ":" (:password user)))))
+    (swap! users dissoc (str (:email-address user) ":" (:password user))))
+
+  mock/IMockUserStore
+  (clear-users [_] (reset! users {})))
 
 (defn new-mem-store
   ([] (new-mem-store []))

@@ -5,7 +5,8 @@
             [com.beardandcode.components.email.mock :as email-mock]
             [com.beardandcode.components.session.mock :as session-mock]
             [com.beardandcode.components.web-server :as web-server]
-            [com.beardandcode.users.example.webapp :as webapp]))
+            [com.beardandcode.users.example.webapp :as webapp]
+            [com.beardandcode.users.store.mock :as store-mock]))
 
 (def ^:private browser-count (atom 0))
 
@@ -22,6 +23,7 @@
     (browser-retain)
     (-> @system :session-store session-mock/clear-sessions)
     (-> @system :email-service email-mock/clear-emails)
+    (-> @system :user-store store-mock/clear-users)
     (test-fn)
     (browser-release)))
 

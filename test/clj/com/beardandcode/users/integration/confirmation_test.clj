@@ -43,7 +43,7 @@
     (is (= (wd/text ".status") "Authenticated"))))
 
 (deftest cant-use-token-twice
-  (register system "b@user.com" "" "a" "a")
+  (register system "a@user.com" "" "a" "a")
   (assert-path system "/")
   (logout system)
   (let [emails (list-emails system)
