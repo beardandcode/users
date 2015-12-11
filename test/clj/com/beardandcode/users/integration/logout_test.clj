@@ -14,6 +14,6 @@
     (login system "a@user.com" "a")
     (assert-path system "/")
     (is (= (wd/text ".status") "Authenticated"))
-    (wd/to (url @system "/account/logout"))
+    (logout system)
     (assert-path system "/")
     (is (= (wd/text ".status") "Unauthenticated"))))
