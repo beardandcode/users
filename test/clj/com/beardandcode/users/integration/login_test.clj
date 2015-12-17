@@ -43,7 +43,7 @@
   (assert-errors "#email-address > .error" [:invalid-email]))
 
 (deftest login-successful
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "password" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "password" :confirmed? true}]
     (login system "a@user.com" "password")
     (assert-path system "/")
     (is (= (wd/text ".status") "Authenticated"))))

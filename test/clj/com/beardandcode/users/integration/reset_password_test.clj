@@ -38,7 +38,7 @@
   (assert-errors "#email-address > .error" [:invalid-email]))
 
 (deftest user-gets-an-email
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (let [emails (list-emails system)]
       (is (= (count emails) 1))
@@ -47,14 +47,14 @@
       (is (-> emails first :message :text string?)))))
 
 (deftest passwords-have-to-match
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (reset-password "b" "c")
     (assert-path system #"^/account/reset-password/[0-9]+$")
     (assert-errors "form > .error" [:passwords-dont-match])))
 
 (deftest passwords-are-required
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (reset-password "" "")
     (assert-path system #"^/account/reset-password/[0-9]+$")
@@ -62,7 +62,7 @@
     (assert-errors "#repeat-password > .error" [:required])))
 
 (deftest user-can-reset-their-email
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (reset-password "b" "b")
     (assert-path system "/")
@@ -73,7 +73,7 @@
     (is (= (wd/text ".status") "Authenticated"))))
 
 (deftest if-not-confirmed-reset-confirms-them
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a"}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a"}]
     (request-reset "a@user.com")
     (reset-password "b" "b")
     (assert-path system "/")

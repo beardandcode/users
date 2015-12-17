@@ -10,7 +10,7 @@
 (use-fixtures :once (store-system! system))
 
 (deftest logout-invalidates-session
-  (with-users (:user-store @system) [_ {:username "a@user.com" :password "a" :confirmed? true}]
+  (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (login system "a@user.com" "a")
     (assert-path system "/")
     (is (= (wd/text ".status") "Authenticated"))

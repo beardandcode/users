@@ -33,7 +33,7 @@
   (is (= (wd/value "#register input[name=password]") "")))
 
 (deftest register-fails-if-already-exists
-  (with-users (:user-store @system) [_ {:username "a@b.com" :password "a"}]
+  (with-users (:user-store @system) [_ {:email-address "a@b.com" :password "a"}]
     (register system "a@b.com" "" "a" "a")
     (assert-path system "/account/register")
     (assert-errors "form[action=\"/account/register\"] > .error" [:failed-to-register])))

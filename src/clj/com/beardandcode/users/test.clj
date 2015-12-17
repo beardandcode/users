@@ -12,7 +12,7 @@
 
 (defn register-from-map! [user-store user-map]
   (store/register! user-store
-                   (:username user-map)
+                   (:email-address user-map)
                    (:password user-map)
                    (get user-map :name "name")))
 
@@ -21,11 +21,11 @@
     (-> bindings count odd?) (throw (Exception. "Need to have even bindings."))
     
     (not (every? #(and (map? %)
-                       (-> #{:username :password}
+                       (-> #{:email-address :password}
                            (clojure.set/difference (-> % keys set))
                            count zero?))
                  (all-odds bindings)))
-    (throw (Exception. "User values have to be maps with :username, :password and optionally :name keys."))
+    (throw (Exception. "User values have to be maps with :email-address, :password and optionally :name keys."))
     
     :else
     `(let ~(into [] (reduce concat [] (map (fn [[sym args]]
