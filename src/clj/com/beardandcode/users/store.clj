@@ -13,11 +13,15 @@
     "Returns whether a user has been confirmed")
   (confirm! [_ token]
     "Confirm a user based on a token created when they registered")
-  
-  (reset-password-token! [_ email-address]
+
+  (find-user [_ email-address]
+    "Find a user based on their email address")
+  (reset-password-token! [_ user]
     "Creates a reset password token for the user with the given email address")
+  (valid-reset-token? [_ token]
+    "Return whether a reset token is valid")
   (reset-password! [_ token password]
-                   "Reset a password based on a token from requesting to reset")
+    "Reset a password based on a token from requesting to reset")
 
   (delete! [_ user]))
 
@@ -31,7 +35,7 @@
                     :name name
                     :confirmed? false}]
       (let [user-id (str email-address ":" password)]
-        (when (not (@users user-id))
+        (when (not (find-user store email-address))
           (swap! users assoc user-id new-user)
           new-user))))
 
@@ -48,17 +52,21 @@
         (swap! confirmation-tokens dissoc token)
         confirmed-user)))
 
-  (reset-password-token! [_ email-address]
-    (if-let [user-id (->> (keys @users)
-                          (filter #(.startsWith %1 (str email-address ":")))
-                          first)]
-      (let [token (str (System/currentTimeMillis))]
-        (swap! reset-tokens assoc token user-id)
-        token)))
+  (find-user [_ email-address]
+    (->> @users
+         (filter (fn [[user-id user]]
+                   (.startsWith user-id (str email-address ":"))))
+         first second))
+  (reset-password-token! [_ user]
+    (let [token (str (System/currentTimeMillis))]
+      (swap! reset-tokens assoc token (str (:email-address user) ":" (:password user)))
+      token))
+  (valid-reset-token? [_ token]
+    (contains? @reset-tokens token))
   (reset-password! [_ token password]
     (if-let [user-id (@reset-tokens token)]
       (let [user (@users user-id)
-            reset-user (assoc user :password password)]
+            reset-user (assoc user :password password :confirmed? true)]
         (swap! users assoc (str (:email-address reset-user) ":" (:password reset-user)) reset-user)
         (swap! users dissoc user-id)
         (swap! reset-tokens dissoc token)

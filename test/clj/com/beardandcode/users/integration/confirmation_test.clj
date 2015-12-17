@@ -46,9 +46,7 @@
   (register system "a@user.com" "" "a" "a")
   (assert-path system "/")
   (logout system)
-  (let [emails (list-emails system)
-        confirm-text-body (-> emails first :message :text)
-        confirm-path (nth (re-find #"(?m)^https?://[^/]+(/.*)$" confirm-text-body) 1)]
+  (let [confirm-path (get-path-from-email system)]
     (wd/to (url @system confirm-path))
     (assert-path system "/")
     (is (= (wd/text ".status") "Authenticated"))

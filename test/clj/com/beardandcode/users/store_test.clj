@@ -24,16 +24,31 @@
           (is (store/confirmed? store-instance (store/authenticate store-instance "tom@booth.com" "pass")))
           (is (not (store/confirm! store-instance token))))))
 
-    (let [reset-password-token (store/reset-password-token! store-instance "tom@booth.com")]
+    (is (nil? (store/register! store-instance "tom@booth.com" "another-pass" "Tomo")))
+
+    (is (not (nil? (store/find-user store-instance "tom@booth.com"))))
+    (is (nil? (store/find-user store-instance "notauser@example.com")))
+
+    (is (not (store/valid-reset-token? store-instance "foo")))
+
+    (let [found-user (store/find-user store-instance "tom@booth.com")
+          reset-password-token (store/reset-password-token! store-instance found-user)]
       (is (not (nil? reset-password-token)))
       (is (string? reset-password-token))
+      (is (store/valid-reset-token? store-instance reset-password-token))
       (let [reset-user (store/reset-password! store-instance reset-password-token "new-pass")
             user (store/authenticate store-instance "tom@booth.com" "new-pass")]
         (is (not (nil? reset-user)))
         (is (= reset-user user))
+        (is (not (store/valid-reset-token? store-instance reset-password-token)))
         (is (nil? (store/reset-password! store-instance reset-password-token "other-pass")))
         (is (nil? (store/authenticate store-instance "tom@booth.com" "other-pass")))
         (is (nil? (store/authenticate store-instance "tom@booth.com" "pass")))))
+
+    (let [unconfirmed-user (store/register! store-instance "un@regged.user" "a" "un regged")
+          reset-password-token (store/reset-password-token! store-instance unconfirmed-user)
+          reset-user (store/reset-password! store-instance reset-password-token "b")]
+      (is (store/confirmed? store-instance reset-user)))
 
     (let [a-user (store/register! store-instance "a@user.com" "asdf" "asd")]
       (is (store/authenticate store-instance "a@user.com" "asdf"))
