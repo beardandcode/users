@@ -66,9 +66,9 @@
           (map com.beardandcode.users/text ~errors))))
 
 (defmacro assert-authenticated []
-  `(is (= (wd/text ".status") "Authenticated")))
+  `(is (= (wd/text ".status") "Logout")))
 (defmacro assert-unauthenticated []
-  `(is (= (wd/text ".status") "Unauthenticated")))
+  `(is (= (wd/text ".status") "Login / register")))
 
 (defn login [system email-address password]
   (wd/to (url @system "/account"))

@@ -32,37 +32,37 @@
      {:keys [confirmation-email reset-password-email was-authenticated was-invalidated]
       :or {confirmation-email (basic-confirm-email base-path)
            reset-password-email (basic-reset-email base-path)
-           was-authenticated (fn [session] (fn [user]
-                                            (-> (redirect "/")
-                                                (assoc :session (assoc session :identity user)))))
-           was-invalidated (fn [session] (fn [& _]
-                                          (-> (redirect "/")
-                                              (assoc :session (dissoc session :identity)))))}}]
+           was-authenticated (fn [request user]
+                               (-> (redirect "/")
+                                   (assoc :session (assoc (:session request) :identity user))))
+           was-invalidated (fn [request & _]
+                             (-> (redirect "/")
+                                 (assoc :session (dissoc (:session request) :identity))))}}]
    (context base-path []
-            (GET "/" [] (account-page {} {}))
-            (POST "/login" [:as {session :session}]
-                  (users/login user-store (was-authenticated session)
-                               #(account-page % {})))
-            (POST "/register" [:as {session :session}]
+            (GET "/" [:as request] (account-page request {} {}))
+            (POST "/login" []
+                  (users/login user-store was-authenticated
+                               #(account-page %1 %2 {})))
+            (POST "/register" []
                   (users/register user-store email-service confirmation-email
-                                  (was-authenticated session)
-                                  #(account-page {} %)))
-            (GET "/confirm/:token" [token :as {session :session}]
-                 (users/confirm user-store (was-authenticated session)
+                                  was-authenticated
+                                  #(account-page %1 {} %2)))
+            (GET "/confirm/:token" [token]
+                 (users/confirm user-store was-authenticated
                                 confirm-failed-page))
-            (GET "/reset-password" [] (request-reset-page {}))
+            (GET "/reset-password" [:as request] (request-reset-page request {}))
             (POST "/reset-password" []
                   (users/request-reset user-store email-service reset-password-email
-                                       #(request-reset-success-page %)
-                                       #(request-reset-page %)))
-            (GET "/reset-password/:token" [token]
+                                       request-reset-success-page
+                                       request-reset-page))
+            (GET "/reset-password/:token" [token :as request]
                  (if (users/valid-reset-token? user-store token)
-                   (reset-password-page token {})
-                   (reset-password-bad-token-page)))
-            (POST "/reset-password/:token" [token :as {session :session}]
+                   (reset-password-page request token {})
+                   (reset-password-bad-token-page request)))
+            (POST "/reset-password/:token" [token]
                  (users/reset-password user-store
-                                       (was-authenticated session)
+                                       was-authenticated
                                        reset-password-bad-token-page
-                                       #(reset-password-page token %)))
-            (GET "/logout" [:as {session :session}]
-                 (was-invalidated session)))))
+                                       #(reset-password-page %1 token %2)))
+            (GET "/logout" []
+                 was-invalidated))))

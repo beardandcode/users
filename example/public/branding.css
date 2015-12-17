@@ -1,0 +1,48 @@
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+header {
+    margin: 20px 0;
+}
+
+header .logo {
+    color: #222;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+nav {
+    text-align: right;
+}
+
+nav li {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+nav li:last-child {
+    margin-right: 0;
+}
+
+input {
+    display: block;
+}
+
+label p {
+    margin-bottom: 0;
+    color: #999;
+}
+
+form p.error,
+label p.error {
+    font-weight: bold;
+    color: red;
+}
+
+table {
+    width: 100%;
+}
