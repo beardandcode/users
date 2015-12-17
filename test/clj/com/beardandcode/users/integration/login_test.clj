@@ -46,4 +46,4 @@
   (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "password" :confirmed? true}]
     (login system "a@user.com" "password")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))))
+    (assert-authenticated)))

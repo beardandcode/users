@@ -65,6 +65,11 @@
   `(is (= (map wd/text (wd/elements ~selector))
           (map com.beardandcode.users/text ~errors))))
 
+(defmacro assert-authenticated []
+  `(is (= (wd/text ".status") "Authenticated")))
+(defmacro assert-unauthenticated []
+  `(is (= (wd/text ".status") "Unauthenticated")))
+
 (defn login [system email-address password]
   (wd/to (url @system "/account"))
   (wd/quick-fill-submit

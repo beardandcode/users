@@ -66,22 +66,22 @@
     (request-reset "a@user.com")
     (reset-password "b" "b")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))
+    (assert-authenticated)
     (logout system)
     (login system "a@user.com" "b")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))))
+    (assert-authenticated)))
 
 (deftest if-not-confirmed-reset-confirms-them
   (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a"}]
     (request-reset "a@user.com")
     (reset-password "b" "b")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))
+    (assert-authenticated)
     (logout system)
     (login system "a@user.com" "b")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))))
+    (assert-authenticated)))
 
 (deftest bad-token-fails
   (wd/to (url @system "/account/reset-password/bad-token"))

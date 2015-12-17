@@ -35,12 +35,12 @@
         confirm-path (nth (re-find #"(?m)^https?://[^/]+(/.*)$" confirm-text-body) 1)]
     (wd/to (url @system confirm-path))
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))
+    (assert-authenticated)
     (logout system)
-    (is (= (wd/text ".status") "Unauthenticated"))
+    (assert-unauthenticated)
     (login system "a@user.com" "a")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))))
+    (assert-authenticated)))
 
 (deftest cant-use-token-twice
   (register system "a@user.com" "" "a" "a")
@@ -49,7 +49,7 @@
   (let [confirm-path (get-path-from-email system)]
     (wd/to (url @system confirm-path))
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))
+    (assert-authenticated)
     (logout system)
     (wd/to (url @system confirm-path))
     (assert-path system #"/account/confirm/[\d]+")))

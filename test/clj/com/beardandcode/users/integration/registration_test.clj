@@ -42,6 +42,6 @@
   (register system "a@user.com" "A User" "asdf" "asdf")
   (wd/take-screenshot :file "/tmp/error.png")
   (assert-path system "/")
-  (is (= (wd/text ".status") "Authenticated")))
+  (assert-authenticated))
 
 

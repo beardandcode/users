@@ -13,7 +13,7 @@
   (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (login system "a@user.com" "a")
     (assert-path system "/")
-    (is (= (wd/text ".status") "Authenticated"))
+    (assert-authenticated)
     (logout system)
     (assert-path system "/")
-    (is (= (wd/text ".status") "Unauthenticated"))))
+    (assert-unauthenticated)))
