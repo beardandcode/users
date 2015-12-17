@@ -19,7 +19,10 @@
                              (or (:name user) (:email-address user)) base-path confirmation-token)}}))
 
 (defn mount
-  ([b u p e] (mount b u p e {}))
+  ([base-path user-store email-service pages]
+   (mount base-path user-store email-service pages {} {}))
+  ([base-path user-store email-service pages emails]
+   (mount base-path user-store email-service pages emails {}))
   ([base-path user-store email-service
     {:keys [account-page confirm-failed-page request-reset-page request-reset-success-page
             reset-password-page reset-password-bad-token-page]
@@ -29,15 +32,16 @@
            request-reset-success-page unimplemented-page
            reset-password-page unimplemented-page
            reset-password-bad-token unimplemented-page}}
-     {:keys [confirmation-email reset-password-email was-authenticated was-invalidated]
-      :or {confirmation-email (basic-confirm-email base-path)
-           reset-password-email (basic-reset-email base-path)
-           was-authenticated (fn [request user]
-                               (-> (redirect "/")
-                                   (assoc :session (assoc (:session request) :identity user))))
-           was-invalidated (fn [request & _]
-                             (-> (redirect "/")
-                                 (assoc :session (dissoc (:session request) :identity))))}}]
+    {:keys [confirmation-email reset-password-email]
+     :or {confirmation-email (basic-confirm-email base-path)
+          reset-password-email (basic-reset-email base-path)}}
+    {:keys [was-authenticated was-invalidated]
+     :or {was-authenticated (fn [request user]
+                              (-> (redirect "/")
+                                  (assoc :session (assoc (:session request) :identity user))))
+          was-invalidated (fn [request & _]
+                            (-> (redirect "/")
+                                (assoc :session (dissoc (:session request) :identity))))}}]
    (context base-path []
             (GET "/" [:as request] (account-page request {} {}))
             (POST "/login" []
