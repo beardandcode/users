@@ -33,6 +33,25 @@
                                     (merge register-data {:error-text-fn (fn [_ _ error]
                                                                            (get users/text error (str error)))}))]))
 
+(defn- request-reset-page [data]
+  (page (forms/build "/account/reset-password" schemata/request-reset
+                     (merge data {:error-text-fn (fn [_ _ error]
+                                                   (get users/text error (str error)))}))))
+
+(defn- request-reset-success-page [user]
+  (page [:p (format "%s we have sent you an email to %s. Please access your email and follow the instructions."
+                    (:name user) (:email-address user))]
+        [:p [:a {:href "/"} "Go back home."]]))
+
+(defn- reset-password-page [token data]
+  (page (forms/build (format "/account/reset-password/%s" token) schemata/reset-password
+                     (merge data {:error-text-fn (fn [_ _ error]
+                                                   (get users/text error (str error)))}))))
+
+(defn- reset-password-bad-token-page []
+  {:status 403
+   :body (page [:p "You seem to be trying to reset your password, but your chance to do so has expired."])})
+
 (defn- email-text-to-html [email]
   (let [text (-> email :message :text)
         [full-string path] (re-find #"(?m)^https?://[^/]+(/.*)$" text)]
@@ -44,7 +63,8 @@
        (GET "/" [:as request]
             (page [:p "You are " [:span.status (if (authenticated? request) "Authenticated" "Unauthenticated")] "."]
                   [:p
-                   [:a {:href "/account"} "Login/register"] " or "
+                   [:a {:href "/account"} "Login/register"] ", "
+                   [:a {:href "/account/reset-password"} "reset your password"] " or "
                    [:a {:href "/account/logout"} "logout"] "."]
                   [:p [:a {:href "/emails"} "Check emails sent."]]))
 
@@ -56,7 +76,11 @@
 
        (user-routes/mount "/account" user-store email-service
                           {:account-page account-page
-                           :confirm-failed-page (fn [] (page [:p "Invalid token used to confirm."]))})
+                           :confirm-failed-page (fn [] (page [:p "Invalid token used to confirm."]))
+                           :request-reset-page request-reset-page
+                           :request-reset-success-page request-reset-success-page
+                           :reset-password-page reset-password-page
+                           :reset-password-bad-token-page reset-password-bad-token-page})
 
        (route/resources "/static/"))
 

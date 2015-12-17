@@ -48,6 +48,13 @@
 (defn list-emails [system]
   (-> @system :email-service email-mock/list-emails))
 
+(defn get-path-from-email
+  ([system] (get-path-from-email system first))
+  ([system which-email-fn]
+   (let [emails (list-emails system)
+         email-body (-> emails which-email-fn :message :text)]
+     (nth (re-find #"(?m)^https?://[^/]+(/.*)$" email-body) 1))))
+
 (defmacro assert-path [system path]
   `(let [~'current-path (current-path @~system)]
      (if (instance? java.util.regex.Pattern ~path)

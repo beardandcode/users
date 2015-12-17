@@ -1,0 +1,14 @@
+{
+    "$schema": "http://forms.beardandcode.com/draft-04/schema#",
+    "title": "Request password reset",
+    "type": "object",
+    "properties": {
+        "email-address": {
+            "type": "string",
+            "format": "email"
+        }
+    },
+    "submit": "Reset password",
+    "required": ["email-address"],
+    "additionalProperties": false
+}
