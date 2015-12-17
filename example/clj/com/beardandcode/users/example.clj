@@ -1,4 +1,4 @@
-(ns com.beardandcode.users.example.webapp
+(ns com.beardandcode.users.example
   (:require [buddy.auth :refer [authenticated?]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication]]

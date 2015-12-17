@@ -41,5 +41,5 @@
                                   [compojure "1.4.0"]
                                   [hiccup "1.0.5"]
                                   [buddy/buddy-auth "0.8.1"]]
-                   :source-paths ["dev"]
-                   :resource-paths ["test"]}})
+                   :source-paths ["dev" "example/clj"]
+                   :resource-paths ["test" "example"]}})

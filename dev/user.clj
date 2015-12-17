@@ -8,7 +8,7 @@
             [vinyasa.pull :refer [pull]]
             [com.beardandcode.components.web-server :refer [port]]
             [com.beardandcode.users :refer :all]
-            [com.beardandcode.users.example.webapp :refer [new-test-system]]))
+            [com.beardandcode.users.example :refer [new-test-system]]))
 
 (reloaded.repl/set-init!
  #(new-test-system (Integer. (or (System/getenv "PORT") 0))))
