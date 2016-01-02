@@ -2,11 +2,13 @@
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :as wd]
             [com.stuartsierra.component :as component]
+            [ragtime.jdbc :as jdbc]
+            [ragtime.repl :as ragtime]
+            [com.beardandcode.components.database :refer [normalise-url]]
             [com.beardandcode.components.email.mock :as email-mock]
             [com.beardandcode.components.session.mock :as session-mock]
             [com.beardandcode.components.web-server :as web-server]
-            [com.beardandcode.users.example :as webapp]
-            [com.beardandcode.users.store.mock :as store-mock]))
+            [com.beardandcode.users.example :as webapp]))
 
 (def ^:private browser-count (atom 0))
 
@@ -16,20 +18,29 @@
 
 (defn browser-release [& {:keys [force] :or {force false}}]
   (when (zero? (swap! browser-count (if force (constantly 0) dec)))
-            (wd/quit)))
+    (wd/quit)))
+
+(def ^:private default-connection-uri
+  "jdbc:postgresql://127.0.0.1:5432/users_test?user=postgres&password=password")
+(def connection-uri (normalise-url (or (System/getenv "DATABASE_URL") default-connection-uri)))
+
+(def ragtime-config
+  {:datastore (jdbc/sql-database {:connection-uri connection-uri})
+   :migrations (jdbc/load-resources "migrations/com/beardandcode/users")})
 
 (defn wrap-test [system]
   (fn [test-fn]
+    (ragtime/migrate ragtime-config)
     (browser-retain)
     (-> @system :session-store session-mock/clear-sessions)
     (-> @system :email-service email-mock/clear-emails)
-    (-> @system :user-store store-mock/clear-users)
     (test-fn)
-    (browser-release)))
+    (browser-release)
+    (ragtime/rollback ragtime-config)))
 
 (defn store-system! [system]
   (fn [ns-fn]
-    (let [system-map (webapp/new-test-system 0)]
+    (let [system-map (webapp/new-test-system 0 connection-uri)]
       (reset! system (component/start system-map))
       (ns-fn)
       (component/stop @system))))

@@ -52,7 +52,7 @@
     (assert-authenticated)
     (logout system)
     (wd/to (url @system confirm-path))
-    (assert-path system #"/account/confirm/[\d]+")))
+    (assert-path system #"/account/confirm/[a-f\d]+")))
 
 (deftest bad-token
   (wd/to (url @system "/account/confirm/123"))

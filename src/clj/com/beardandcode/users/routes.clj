@@ -6,17 +6,22 @@
 (defn- unimplemented-page [& _]
   "<h1>Unimplemented page</h1>")
 
+(defn- name-of [user]
+  (or (:name user) (:email-address user)))
+
 (defn- basic-confirm-email [base-path]
   (fn [user confirmation-token]
-    {:subject (format "Hi %s, confirm your email address to get started." (:email-address user))
+    {:to (:email-address user)
+     :subject (format "Hi %s, confirm your email address to get started." (name-of user))
      :message {:text (format "Hi %s,\n\nhttp://example.com%s/confirm/%s\n\nThanks,\nTeam"
-                             (or (:name user) (:email-address user)) base-path confirmation-token)}}))
+                             (name-of user) base-path confirmation-token)}}))
 
 (defn- basic-reset-email [base-path]
   (fn [user confirmation-token]
-    {:subject (format "Follow these instructions to change your password" (:email-address user))
+    {:to (:email-address user)
+     :subject (format "Hi %s, follow these instructions to change your password" (name-of user))
      :message {:text (format "Hi %s,\n\nhttp://example.com%s/reset-password/%s\n\nThanks,\nTeam"
-                             (or (:name user) (:email-address user)) base-path confirmation-token)}}))
+                             (name-of user) base-path confirmation-token)}}))
 
 (defn mount
   ([base-path user-store email-service pages]

@@ -12,7 +12,7 @@
             [lein-kibit "0.1.2"]]
   
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [com.beardandcode/components "0.1.2"]
+                 [com.beardandcode/components "0.1.3"]
                  [com.beardandcode/forms "0.1.2"]]
 
   :source-paths ["src/clj"]
@@ -40,6 +40,7 @@
                                   [ch.qos.logback/logback-classic "1.1.3"]
                                   [compojure "1.4.0"]
                                   [hiccup "1.0.5"]
-                                  [buddy/buddy-auth "0.8.1"]]
+                                  [buddy/buddy-auth "0.8.1"]
+                                  [ragtime "0.5.2"]]
                    :source-paths ["dev" "example/clj"]
                    :resource-paths ["test" "example"]}})

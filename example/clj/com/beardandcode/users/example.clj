@@ -8,6 +8,7 @@
             [hiccup.page :as hiccup]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
+            [com.beardandcode.components.database :refer [new-database]]
             [com.beardandcode.components.email.mock :refer [new-mock-email-service list-emails]]
             [com.beardandcode.components.routes :refer [new-routes]]
             [com.beardandcode.components.session.mock :refer [new-mock-session-store]]
@@ -16,7 +17,7 @@
             [com.beardandcode.users :as users]
             [com.beardandcode.users.routes :as user-routes]
             [com.beardandcode.users.schemata :as schemata]
-            [com.beardandcode.users.store :refer [new-mem-store]]))
+            [com.beardandcode.users.store.postgresql :refer [new-store]]))
 
 (defn- page [request & body]
   (hiccup/html5
@@ -106,7 +107,7 @@
 
        (user-routes/mount "/account" user-store email-service
                           {:account-page account-page
-                           :confirm-failed-page (fn [] (page [:p "Invalid token used to confirm."]))
+                           :confirm-failed-page (fn [& _] (page [:p "Invalid token used to confirm."]))
                            :request-reset-page request-reset-page
                            :request-reset-success-page request-reset-success-page
                            :reset-password-page reset-password-page
@@ -119,15 +120,15 @@
       wrap-params))
 
 
-(defn new-test-system [port]
+(defn new-test-system [port database-url]
   (component/system-map
    :session-store (new-mock-session-store)
    :email-service (new-mock-email-service)
-   :user-store (new-mem-store)
+   :db (new-database database-url)
+   :user-store (component/using (new-store) [:db])
    :routes (component/using
             (new-routes route-fn)
             [:user-store :email-service :session-store])
    :web (component/using
          (new-web-server "127.0.0.1" port)
          [:routes])))
-
