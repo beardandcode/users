@@ -50,14 +50,14 @@
   (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (reset-password "b" "c")
-    (assert-path system #"^/account/reset-password/[0-9]+$")
+    (assert-path system #"^/account/reset-password/[a-f0-9]+$")
     (assert-errors "form > .error" [:passwords-dont-match])))
 
 (deftest passwords-are-required
   (with-users (:user-store @system) [_ {:email-address "a@user.com" :password "a" :confirmed? true}]
     (request-reset "a@user.com")
     (reset-password "" "")
-    (assert-path system #"^/account/reset-password/[0-9]+$")
+    (assert-path system #"^/account/reset-password/[a-f0-9]+$")
     (assert-errors "#password > .error" [:required])
     (assert-errors "#repeat-password > .error" [:required])))
 
