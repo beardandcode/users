@@ -5,15 +5,15 @@
             :url "http://opensource.org/licenses/MIT"}
 
   :min-lein-version "2.0.0"
-  
+
   :plugins [[lein-ancient "0.6.7"]
             [jonase/eastwood "0.2.1"]
             [lein-bikeshed "0.2.0"]
             [lein-kibit "0.1.2"]]
-  
+
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.beardandcode/components "0.1.3"]
-                 [com.beardandcode/forms "0.1.2"]]
+                 [com.beardandcode/forms "0.1.4"]]
 
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]
