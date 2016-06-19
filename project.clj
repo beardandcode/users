@@ -1,4 +1,4 @@
-(defproject com.beardandcode/users "0.1.2"
+(defproject com.beardandcode/users "0.1.3"
   :description "A library to manage and manipulate users for use with a webapp"
   :url "https://github.com/beardandcode/users"
   :license {:name "MIT"
